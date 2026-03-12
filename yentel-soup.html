@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yentel Soup — Find Your Person</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --off-white: #F5F2EC;
+    --paper: #EFEBE3;
+    --stone: #E2DDD4;
+    --olive: #7A7A52;
+    --olive-dark: #565640;
+    --olive-light: #9A9A72;
+    --terra: #C4703A;
+    --terra-dark: #9E4E1F;
+    --terra-light: #D4956A;
+    --ink: #1C1C18;
+    --ink-light: #3A3A32;
+    --muted: #8C8878;
+    --border: #D4CFC5;
+    --white: #FDFCFA;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--off-white);
+    font-family: 'Poppins', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-weight: 300;
+  }
+
+  /* ── CONFIG BANNER ── */
+  #config-banner {
+    background: var(--ink);
+    color: rgba(255,255,255,0.8);
+    padding: 9px 20px;
+    font-size: 11px;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    position: relative;
+    z-index: 200;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+  #config-banner strong { color: #C8B882; font-weight: 500; }
+  .cfg-btn {
+    padding: 4px 14px;
+    background: var(--terra);
+    color: white;
+    border: none;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(28,28,24,0.7); backdrop-filter:blur(6px); z-index:500; align-items:center; justify-content:center; padding:24px; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--white); padding:40px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; animation:fadeUp 0.3s ease both; }
+  .modal h3 { font-family:'Poppins',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.5px; margin-bottom:6px; }
+  .modal > p { font-size:12px; color:var(--muted); margin-bottom:28px; line-height:1.6; letter-spacing:0.2px; }
+  .cfg-section { border:1px solid var(--border); padding:18px; margin-bottom:14px; }
+  .cfg-head { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .cfg-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; background:var(--paper); }
+  .cfg-head h4 { font-size:12px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+  .cfg-head p { font-size:11px; color:var(--muted); margin-top:1px; }
+  .cfg-grid { display:grid; gap:10px; }
+  .cfg-field label { display:block; font-size:9px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+  .cfg-field input { width:100%; padding:9px 12px; border:1px solid var(--border); font-family:'Poppins',sans-serif; font-size:13px; outline:none; color:var(--ink); background:var(--off-white); transition:border-color 0.2s; font-weight:300; }
+  .cfg-field input:focus { border-color:var(--olive); }
+  .cfg-note { background:var(--paper); border-left:3px solid var(--terra); padding:12px 16px; font-size:11px; color:var(--ink-light); margin-top:16px; line-height:1.6; }
+  .modal-actions { display:flex; gap:10px; margin-top:24px; justify-content:flex-end; }
+  .btn-save { padding:11px 28px; background:var(--ink); color:white; border:none; font-family:'Poppins',sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:background 0.2s; }
+  .btn-save:hover { background:var(--olive-dark); }
+  .btn-cancel-modal { padding:11px 20px; background:transparent; color:var(--muted); border:1px solid var(--border); font-family:'Poppins',sans-serif; font-size:11px; letter-spacing:0.5px; cursor:pointer; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 38px; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 56px;
+    background: rgba(245,242,236,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    font-style: normal;
+    color: var(--ink);
+    cursor: pointer;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+  }
+  .logo strong { color: var(--terra); font-weight: 900; }
+
+  .nav-tabs { display:flex; gap:0; border:1px solid var(--border); overflow:hidden; }
+  .nav-tab {
+    padding: 9px 22px;
+    border: none;
+    background: transparent;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-right: 1px solid var(--border);
+  }
+  .nav-tab:last-child { border-right: none; }
+  .nav-tab.active { background: var(--olive); color: white; }
+  .nav-tab:hover:not(.active) { background: var(--paper); color: var(--ink); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 160px 64px 80px 56px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-right {
+    background: var(--olive);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 60px;
+  }
+
+  .hero-right-texture {
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 40px,
+        rgba(255,255,255,0.03) 40px,
+        rgba(255,255,255,0.03) 41px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 40px,
+        rgba(255,255,255,0.03) 40px,
+        rgba(255,255,255,0.03) 41px
+      );
+  }
+
+  .hero-right-word {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(80px, 14vw, 180px);
+    font-weight: 900;
+    font-style: normal;
+    color: rgba(255,255,255,0.1);
+    line-height: 0.85;
+    letter-spacing: -6px;
+    user-select: none;
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--terra);
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--terra);
+    width: fit-content;
+  }
+
+  .hero h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(38px, 5vw, 62px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 28px;
+    color: var(--ink);
+  }
+  .hero h1 em { font-style: normal; color: var(--terra); }
+
+  .hero-sub {
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--muted);
+    font-weight: 400;
+    margin-bottom: 48px;
+    max-width: 380px;
+    letter-spacing: 0.1px;
+  }
+
+  .cta-group { display:flex; gap:12px; flex-wrap:wrap; }
+
+  .btn-primary {
+    padding: 14px 36px;
+    background: var(--ink);
+    color: white;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--olive-dark); }
+
+  .btn-secondary {
+    padding: 14px 36px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--border);
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--olive); color: var(--olive); }
+
+  /* hero accent block */
+  .hero-accent {
+    position: absolute;
+    top: 160px;
+    right: -1px;
+    width: 3px;
+    height: 80px;
+    background: var(--terra);
+  }
+
+  /* ── PAGES ── */
+  .page { display:none; }
+  .page.active { display:block; animation:fadeUp 0.35s ease both; }
+
+  /* ── FORM ── */
+  .form-section { min-height:100vh; padding:130px 24px 80px; display:flex; justify-content:center; }
+  .form-card { width:100%; max-width:660px; }
+
+  .form-header { margin-bottom:48px; }
+  .form-header .f-eyebrow {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--terra);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .form-header .f-eyebrow::after { content:''; flex:1; height:1px; background:var(--border); }
+  .form-header h2 { font-family:'Poppins',sans-serif; font-size:30px; font-weight:800; letter-spacing:-1px; margin-bottom:6px; }
+  .form-header p { color:var(--muted); font-size:13px; font-weight:300; letter-spacing:0.2px; }
+
+  /* progress */
+  .progress-bar { display:flex; gap:0; margin-bottom:44px; height:2px; background:var(--stone); }
+  .progress-seg { flex:1; background:var(--stone); transition:background 0.3s; }
+  .progress-seg.done { background:var(--olive); }
+  .progress-seg.active { background:var(--terra); }
+
+  .form-step { display:none; }
+  .form-step.active { display:block; }
+
+  .step-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--olive);
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .step-label::before { content:''; width:20px; height:1px; background:var(--terra); }
+
+  .field-group { margin-bottom: 22px; }
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  label {
+    display: block;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+
+  input[type="text"],input[type="email"],input[type="tel"],input[type="number"],select,textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--ink);
+    transition: all 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+  input:focus,select:focus,textarea:focus {
+    border-color: var(--border);
+    border-bottom-color: var(--olive);
+    background: var(--white);
+  }
+  textarea { resize:vertical; min-height:90px; line-height:1.7; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238C8878' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+  .char-count { text-align:right; font-size:10px; color:var(--stone); margin-top:4px; letter-spacing:0.5px; }
+  .req { color:var(--terra); }
+
+  /* ── TYPE CARDS ── */
+  .type-cards { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--border); }
+  .type-card {
+    padding: 32px 24px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    border: 2px solid transparent;
+    position: relative;
+  }
+  .type-card:first-child { border-right: 1px solid var(--border); }
+  .type-card:hover { background: var(--paper); }
+  .type-card.selected { background: var(--paper); border-color: var(--olive); z-index:1; }
+  .type-card .tc-emoji { font-size: 28px; display:block; margin-bottom:14px; }
+  .type-card h4 { font-family:'Poppins',sans-serif; font-size:16px; font-weight:700; margin-bottom:6px; letter-spacing:-0.3px; }
+  .type-card p { font-size:12px; color:var(--muted); line-height:1.6; font-weight:300; }
+  .type-card .selected-mark {
+    position:absolute; top:12px; right:12px;
+    width:20px; height:20px;
+    background:var(--olive);
+    display:none;
+    align-items:center; justify-content:center;
+    font-size:10px; color:white;
+  }
+  .type-card.selected .selected-mark { display:flex; }
+
+  /* ── AWARENESS ── */
+  .awareness-box { display:none; margin-top:0; background:var(--paper); border:1px solid var(--border); border-top:none; }
+  .awareness-box.show { display:block; }
+  .awareness-top { padding:12px 20px; font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+  .awareness-opts { display:flex; }
+  .aw-opt { flex:1; padding:18px 20px; text-align:left; cursor:pointer; transition:all 0.2s; background:none; font-family:'Poppins',sans-serif; border:2px solid transparent; }
+  .aw-opt:first-child { border-right:1px solid var(--border); }
+  .aw-opt.selected { background:var(--off-white); border-color:var(--terra); }
+  .aw-opt .aw-emoji { font-size:18px; display:block; margin-bottom:5px; }
+  .aw-opt .aw-label { font-size:13px; font-weight:500; display:block; margin-bottom:2px; color:var(--ink); }
+  .aw-opt .aw-sub { font-size:11px; color:var(--muted); font-weight:300; }
+  .friend-note { display:none; padding:14px 20px; font-size:12px; line-height:1.6; border-left:3px solid var(--terra); background:var(--paper); margin-top:16px; font-weight:300; }
+  .friend-note.show { display:block; }
+
+  /* ── NOMINATOR ── */
+  .nominator-section { display:none; }
+  .nominator-section.show { display:block; }
+  .context-pill { display:none; align-items:center; gap:8px; padding:8px 16px; background:var(--paper); border-left:3px solid var(--olive); font-size:11px; color:var(--olive-dark); margin-bottom:24px; font-weight:500; letter-spacing:0.3px; }
+  .context-pill.show { display:flex; }
+  .context-pill .dot { width:5px; height:5px; background:var(--terra); flex-shrink:0; }
+
+  /* ── PHOTOS ── */
+  .upload-zone {
+    border: 1px dashed var(--border);
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: var(--white);
+  }
+  .upload-zone:hover,.upload-zone.over { border-color:var(--olive); background:var(--paper); }
+  .upload-zone input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+  .upload-icon { width:40px; height:40px; background:var(--paper); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+  .upload-zone h4 { font-family:'Poppins',sans-serif; font-size:15px; font-weight:700; margin-bottom:4px; }
+  .upload-zone p { font-size:11px; color:var(--muted); letter-spacing:0.3px; }
+  .photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:6px; margin-top:10px; }
+  .photo-thumb { aspect-ratio:1; overflow:hidden; position:relative; background:var(--paper); }
+  .photo-thumb img { width:100%; height:100%; object-fit:cover; }
+  .photo-thumb .rm { position:absolute; top:0; right:0; width:20px; height:20px; background:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:9px; color:white; border:none; }
+
+  /* ── TAGS ── */
+  .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .tag {
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    background: var(--white);
+  }
+  .tag:hover { border-color:var(--olive-light); color:var(--olive); }
+  .tag.on { background:var(--olive); border-color:var(--olive); color:white; }
+
+  /* ── STEP NAV ── */
+  .step-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: color 0.2s;
+  }
+  .btn-back:hover { color: var(--ink); }
+
+  .btn-next {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 32px;
+    background: var(--ink);
+    color: white;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-next:hover { background: var(--olive-dark); }
+  .btn-next:disabled { opacity:0.3; pointer-events:none; }
+
+  .btn-submit {
+    padding: 14px 40px;
+    background: var(--terra);
+    color: white;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { background: var(--terra-dark); }
+  .btn-submit:disabled { opacity:0.4; cursor:not-allowed; }
+
+  /* ── STARS ── */
+  .stars { display:flex; gap:6px; margin-top:8px; }
+  .star { font-size:24px; cursor:pointer; transition:transform 0.15s; color:var(--stone); line-height:1; }
+  .star:hover,.star.on { color:#C8963C; transform:scale(1.1); }
+
+  /* ── STATUS ── */
+  .submit-status { display:none; align-items:center; gap:8px; font-size:11px; color:var(--muted); letter-spacing:0.3px; }
+  .submit-status.show { display:flex; }
+  .spinner { width:14px; height:14px; border:1.5px solid var(--border); border-top-color:var(--terra); border-radius:50%; animation:spin 0.7s linear infinite; flex-shrink:0; }
+  .ok { color:var(--olive); font-weight:500; }
+  .err { color:#B03A2E; font-weight:500; }
+
+  /* ── FEEDBACK ── */
+  .fb-intro {
+    background: var(--olive);
+    padding: 28px 32px;
+    margin-bottom: 36px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .fb-intro::before {
+    content: 'YS';
+    position: absolute;
+    right: 24px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Cormorant Garamond',serif;
+    font-size: 80px;
+    font-weight: 300;
+    font-style: italic;
+    opacity: 0.12;
+    line-height: 1;
+  }
+  .fb-intro h3 { font-family:'Poppins',sans-serif; font-size:18px; font-weight:800; margin-bottom:6px; letter-spacing:-0.3px; }
+  .fb-intro p { font-size:12px; opacity:0.75; line-height:1.6; font-weight:300; }
+
+  .divider { display:flex; align-items:center; gap:16px; margin:28px 0; color:var(--muted); font-size:9px; letter-spacing:2px; text-transform:uppercase; font-weight:600; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── SUCCESS ── */
+  .success-state { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:100px 24px; }
+  .success-inner { max-width:480px; text-align:center; animation:fadeUp 0.7s ease both; }
+  .s-bowl { font-size:56px; margin-bottom:24px; display:block; animation:bounce 1s ease 0.3s both; }
+  .success-inner h2 { font-family:'Poppins',sans-serif; font-size:36px; font-weight:900; margin-bottom:14px; letter-spacing:-1.5px; }
+  .success-inner > p { color:var(--muted); font-size:14px; line-height:1.7; margin-bottom:32px; font-weight:300; }
+
+  .next-steps { border:1px solid var(--border); text-align:left; margin-bottom:28px; }
+  .ns-header { padding:12px 20px; background:var(--paper); font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+  .ns-item { display:flex; align-items:flex-start; gap:14px; padding:16px 20px; border-bottom:1px solid var(--border); }
+  .ns-item:last-child { border-bottom:none; }
+  .ns-num { width:22px; height:22px; background:var(--olive); color:white; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; flex-shrink:0; margin-top:1px; letter-spacing:0; }
+  .ns-text strong { font-size:13px; font-weight:500; display:block; margin-bottom:2px; }
+  .ns-text span { font-size:11px; color:var(--muted); line-height:1.5; font-weight:300; }
+
+  /* ── DIVIDER RULE ── */
+  .section-rule { border:none; border-top:1px solid var(--border); margin:28px 0; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes bounce { 0%,100% { transform:translateY(0); } 40% { transform:translateY(-12px); } 60% { transform:translateY(-5px); } }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:var(--off-white); }
+  ::-webkit-scrollbar-thumb { background:var(--stone); }
+
+  @media(max-width:700px) {
+    nav { padding:14px 20px; }
+    .hero { grid-template-columns:1fr; }
+    .hero-right { display:none; }
+    .hero-left { padding:130px 28px 60px; }
+    .field-row,.type-cards { grid-template-columns:1fr; }
+    .type-card:first-child { border-right:none; border-bottom:1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFIG BANNER -->
+<div id="config-banner">
+  <strong>⚙ Setup required:</strong> Connect Airtable & email to activate submissions.
+  <button class="cfg-btn" onclick="openConfig()">Configure Integrations</button>
+</div>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <h3>Integration Setup</h3>
+    <p>Connect Airtable to store submissions and EmailJS to send confirmation emails. Keys are saved in your browser — never shared.</p>
+
+    <div class="cfg-section">
+      <div class="cfg-head">
+        <div class="cfg-icon at">🗃️</div>
+        <div><h4>Airtable</h4><p>Submissions saved as new records in your base</p></div>
+      </div>
+      <div class="cfg-grid">
+        <div class="cfg-field"><label>Personal Access Token</label><input id="cfg-at-token" placeholder="patXXXXXXXXXXXXXX"></div>
+        <div class="cfg-field"><label>Base ID</label><input id="cfg-at-base" placeholder="appXXXXXXXXXXXXXX"></div>
+        <div class="cfg-field"><label>Applications Table Name</label><input id="cfg-at-apps" placeholder="Applications"></div>
+        <div class="cfg-field"><label>Feedback Table Name</label><input id="cfg-at-fb" placeholder="Date Feedback"></div>
+      </div>
+    </div>
+
+    <div class="cfg-section">
+      <div class="cfg-head">
+        <div class="cfg-icon em">✉️</div>
+        <div><h4>Email Confirmation (EmailJS)</h4><p>Auto-send a confirmation on submission — free account at emailjs.com</p></div>
+      </div>
+      <div class="cfg-grid">
+        <div class="cfg-field"><label>Service ID</label><input id="cfg-ejs-svc" placeholder="service_xxxxxxx"></div>
+        <div class="cfg-field"><label>Template ID</label><input id="cfg-ejs-tpl" placeholder="template_xxxxxxx"></div>
+        <div class="cfg-field"><label>Public Key</label><input id="cfg-ejs-key" placeholder="xxxxxxxxxxxxxxxxxxxx"></div>
+      </div>
+    </div>
+
+    <div class="cfg-section">
+      <div class="cfg-head">
+        <div class="cfg-icon ca">📅</div>
+        <div><h4>Scheduling Link</h4><p>Shown on success screen so applicants can book their intro call</p></div>
+      </div>
+      <div class="cfg-field"><label>Calendly / Cal.com URL</label><input id="cfg-cal" placeholder="https://calendly.com/yourname/intro-call"></div>
+    </div>
+
+    <div class="cfg-note">
+      💡 <strong>Airtable:</strong> Settings → Developer Hub → Create token (scopes: data.records:write). &nbsp;
+      <strong>EmailJS:</strong> Free at emailjs.com — create a template with variables: <code>to_name</code>, <code>to_email</code>, <code>calendly_url</code>.
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel-modal" onclick="closeConfig()">Cancel</button>
+      <button class="btn-save" onclick="saveConfig()">Save & Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="goHome()">yentel <strong>soup</strong></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">Home</button>
+    <button class="nav-tab" onclick="showPage('apply')">Apply</button>
+    <button class="nav-tab" onclick="showPage('feedback')">Date Feedback</button>
+  </div>
+</nav>
+
+<!-- ══════════ HOME ══════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-left" style="animation:fadeUp 0.8s ease both;">
+      <div class="hero-accent"></div>
+      <div class="hero-tag">like bubbe used to make</div>
+      <h1>a matchmaking<br>service for<br><em>real ones.</em></h1>
+      <p class="hero-sub">all ingredients (people) welcome. submit yourself, submit your cool friends. yentel will handle the rest.</p>
+      <div class="cta-group">
+        <button class="btn-primary" onclick="showPage('apply')">submit yourself ↓</button>
+        <button class="btn-secondary" onclick="showPage('feedback')">leave date feedback</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-right-texture"></div>
+      <div class="hero-right-word">soup</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ APPLICATION ══════════ -->
+<div id="page-apply" class="page">
+  <div id="apply-wrapper">
+    <div class="form-section">
+      <div class="form-card">
+        <div class="form-header">
+          <div class="f-eyebrow">Step <span id="step-num">1</span> of 5</div>
+          <h2 id="step-title">Who are we working with?</h2>
+          <p id="step-desc">Are you here for yourself, or saving a friend from themselves?</p>
+        </div>
+        <div class="progress-bar" id="progress-dots"></div>
+
+        <!-- STEP 1 – submission type -->
+        <div class="form-step active" id="step-1">
+          <div class="type-cards">
+            <div class="type-card" id="card-self" onclick="selectType('self')">
+              <span class="tc-emoji">🙋</span>
+              <h4>i'm submitting myself</h4>
+              <p>you're ready. the apps aren't working. we are.</p>
+            </div>
+            <div class="type-card" id="card-friend" onclick="selectType('friend')">
+              <span class="tc-emoji">💌</span>
+              <h4>i'm submitting a cool friend</h4>
+              <p>they deserve someone great and the dating pool has failed them. time to call in a professional.</p>
+            </div>
+          </div>
+
+          <div class="awareness-box" id="awareBox">
+            <div class="awareness-top">does your friend know you're doing this?</div>
+            <div class="awareness-opts">
+              <button class="aw-opt" id="aw-knows" onclick="selectAwareness('knows')">
+                <span class="aw-emoji">✅</span>
+                <span class="aw-label">yes, they're in on it</span>
+                <span class="aw-sub">they know and they're excited</span>
+              </button>
+              <button class="aw-opt" id="aw-surprise" onclick="selectAwareness('surprise')">
+                <span class="aw-emoji">🤫</span>
+                <span class="aw-label">it's a surprise</span>
+                <span class="aw-sub">they have no idea (we love this)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="friend-note" id="friendNote"></div>
+
+          <div class="step-nav">
+            <div></div>
+            <button class="btn-next" id="btn-s1-next" onclick="nextStep(2)" disabled>
+              Continue
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2 – basics -->
+        <div class="form-step" id="step-2">
+          <div class="context-pill" id="ctx-pill"><span class="dot"></span><span id="ctx-text"></span></div>
+
+          <div class="nominator-section" id="nom-section">
+            <div class="step-label">about you (the one doing the submitting)</div>
+            <div class="field-row">
+              <div class="field-group"><label>Your Name <span class="req">*</span></label><input type="text" id="nom-name" placeholder="your name"></div>
+              <div class="field-group"><label>Your Email <span class="req">*</span></label><input type="email" id="nom-email" placeholder="your@email.com"></div>
+            </div>
+            <div class="field-group"><label>how do you know them?</label><input type="text" id="nom-rel" placeholder="best friend, sibling, coworker, neighbor…"></div>
+            <div class="field-group">
+              <label>make the case for them. why should we care?</label>
+              <textarea id="nom-why" placeholder="sell us on them. what makes them a great person to know?" maxlength="400" oninput="cnt(this,'nom-why-c',400)"></textarea>
+              <div class="char-count"><span id="nom-why-c">0</span>/400</div>
+            </div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:24px 0;">
+          </div>
+
+          <div class="step-label" id="basics-label">The Basics</div>
+          <div class="field-row">
+            <div class="field-group"><label>First Name <span class="req">*</span></label><input type="text" id="firstName" placeholder="First name"></div>
+            <div class="field-group"><label>Last Name <span class="req">*</span></label><input type="text" id="lastName" placeholder="Last name"></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label>Age <span class="req">*</span></label><input type="number" id="age" placeholder="e.g. 29" min="18" max="99"></div>
+            <div class="field-group">
+              <label>Gender Identity <span class="req">*</span></label>
+              <select id="gender"><option value="" disabled selected>Select...</option><option>Woman</option><option>Man</option><option>Non-binary</option><option>Prefer to self-describe</option></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label>Email <span class="req">*</span></label><input type="email" id="email" placeholder="email@example.com"></div>
+            <div class="field-group"><label>Phone</label><input type="tel" id="phone" placeholder="+1 (555) 000-0000"></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label>Location <span class="req">*</span></label><input type="text" id="location" placeholder="City, State"></div>
+            <div class="field-group"><label>Occupation</label><input type="text" id="occupation" placeholder="What do they do?"></div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="nextStep(1)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 12L3 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Back</button>
+            <button class="btn-next" onclick="nextStep(3)">Continue <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+
+        <!-- STEP 3 – photos -->
+        <div class="form-step" id="step-3">
+          <div class="step-label">Photos & Social</div>
+          <div class="field-group">
+            <label>Photos</label>
+            <div class="upload-zone" id="dropZone">
+              <input type="file" accept="image/*" multiple onchange="addPhotos(event)">
+              <div class="upload-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+              <h4>Drag photos here</h4>
+              <p>or click to browse · JPG, PNG, WEBP · Max 10MB each</p>
+            </div>
+            <div class="photo-grid" id="photoGrid"></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label>Instagram</label><input type="text" id="instagram" placeholder="@handle"></div>
+            <div class="field-group"><label>LinkedIn (optional)</label><input type="text" id="linkedin" placeholder="linkedin.com/in/..."></div>
+          </div>
+          <div class="step-nav">
+            <button class="btn-back" onclick="nextStep(2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 12L3 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Back</button>
+            <button class="btn-next" onclick="nextStep(4)">Continue <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+
+        <!-- STEP 4 – personality -->
+        <div class="form-step" id="step-4">
+          <div class="step-label">the good stuff</div>
+          <div class="field-group">
+            <label>who are they, really? <span class="req">*</span></label>
+            <textarea id="bio" placeholder="not their linkedin. their vibe. what do people love about them? what are they like on a saturday? what would their friends say about them?" maxlength="500" oninput="cnt(this,'bio-c',500)"></textarea>
+            <div class="char-count"><span id="bio-c">0</span>/500</div>
+          </div>
+          <div class="field-group">
+            <label>what are they looking for?</label>
+            <div class="tags" id="t-looking">
+              <div class="tag" onclick="tog(this)">the one</div>
+              <div class="tag" onclick="tog(this)">marriage, eventually</div>
+              <div class="tag" onclick="tog(this)">dating, see what happens</div>
+              <div class="tag" onclick="tog(this)">a real companion</div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>their vibe</label>
+            <div class="tags" id="t-vibe">
+              <div class="tag" onclick="tog(this)">homebody</div>
+              <div class="tag" onclick="tog(this)">adventurous</div>
+              <div class="tag" onclick="tog(this)">social butterfly</div>
+              <div class="tag" onclick="tog(this)">creative</div>
+              <div class="tag" onclick="tog(this)">intellectual</div>
+              <div class="tag" onclick="tog(this)">outdoorsy</div>
+              <div class="tag" onclick="tog(this)">total foodie</div>
+              <div class="tag" onclick="tog(this)">ambitious</div>
+              <div class="tag" onclick="tog(this)">funny as hell</div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>how'd you hear about yentel soup?</label>
+            <select id="referral"><option value="" disabled selected>select one...</option><option>a friend</option><option>instagram</option><option>tiktok</option><option>word of mouth</option><option>google</option><option>other</option></select>
+          </div>
+          <div class="step-nav">
+            <button class="btn-back" onclick="nextStep(3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 12L3 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Back</button>
+            <button class="btn-next" onclick="nextStep(5)">Continue <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+
+        <!-- STEP 5 – final -->
+        <div class="form-step" id="step-5">
+          <div class="step-label">almost in the pot</div>
+          <div class="field-group">
+            <label>what would make them genuinely excited about someone?</label>
+            <textarea id="greenFlag" placeholder="think about the last time they came home from a date glowing. what happened?" maxlength="300" oninput="cnt(this,'gf-c',300)"></textarea>
+            <div class="char-count"><span id="gf-c">0</span>/300</div>
+          </div>
+          <div class="field-group">
+            <label>hard nos. be real.</label>
+            <textarea id="dealbreaker" placeholder="no judgment. yentel needs to know so she doesn't waste your time." maxlength="300" oninput="cnt(this,'db-c',300)"></textarea>
+            <div class="char-count"><span id="db-c">0</span>/300</div>
+          </div>
+          <div class="field-group">
+            <label>kids situation</label>
+            <select id="kids"><option value="" disabled selected>select one...</option><option>has kids — they're the whole world</option><option>has kids — open to a partner who isn't a primary figure</option><option>no kids, wants them someday</option><option>no kids, not sure yet</option><option>no kids, not happening</option><option>open to whatever</option></select>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label>religion / faith</label>
+              <select id="religion">
+                <option value="" disabled selected>select...</option>
+                <option>Jewish</option>
+                <option>Christian</option>
+                <option>Catholic</option>
+                <option>Muslim</option>
+                <option>Hindu</option>
+                <option>Buddhist</option>
+                <option>Spiritual but not religious</option>
+                <option>Agnostic</option>
+                <option>Atheist</option>
+                <option>Other</option>
+                <option>Prefer not to say</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>does a partner's religion matter?</label>
+              <select id="religion-pref">
+                <option value="" disabled selected>select...</option>
+                <option>yes — same religion is important</option>
+                <option>preferred but not a dealbreaker</option>
+                <option>open to any religion</option>
+                <option>prefer non-religious</option>
+                <option>totally open</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>anything we should know before we get cooking?</label>
+            <textarea id="extras" placeholder="context, nuance, a weird but important detail — put it here." maxlength="500" oninput="cnt(this,'ex-c',500)"></textarea>
+            <div class="char-count"><span id="ex-c">0</span>/500</div>
+          </div>
+          <div class="step-nav">
+            <button class="btn-back" onclick="nextStep(4)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 12L3 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Back</button>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+              <div class="submit-status" id="app-st"><div class="spinner"></div><span id="app-st-txt">submitting…</span></div>
+              <button class="btn-submit" id="app-btn" onclick="submitApp()">drop me in the soup 🍜</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION SUCCESS -->
+  <div id="apply-success" class="success-state" style="display:none;">
+    <div class="success-inner">
+      <span class="s-bowl">🍜</span>
+      <h2>You're in the soup.</h2>
+      <p id="s-msg">We've got your application. Give us 2–3 days to review it properly — we actually read these.</p>
+      <div class="next-steps">
+        <div class="ns-header">What happens next</div>
+        <div class="ns-item"><div class="ns-num">1</div><div class="ns-text"><strong>Check your inbox</strong><span>A confirmation email is on its way — check your spam if you're that person</span></div></div>
+        <div class="ns-item"><div class="ns-num">2</div><div class="ns-text"><strong>Book your intro call</strong><span id="s-cal-txt">A quick 15-min call so we can actually get to know you before we start matching</span></div></div>
+        <div class="ns-item"><div class="ns-num">3</div><div class="ns-text"><strong>Meet someone worth meeting</strong><span>We'll reach out when we have the right person for you — not before</span></div></div>
+      </div>
+      <div id="s-cal-cta" style="display:none;margin-bottom:16px;">
+        <a id="s-cal-link" href="#" target="_blank"><button class="btn-primary">Schedule Intro Call →</button></a>
+      </div>
+      <button class="btn-secondary" onclick="resetPage('home')">← Back to home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FEEDBACK ══════════ -->
+<div id="page-feedback" class="page">
+  <div id="fb-wrapper">
+    <div class="form-section">
+      <div class="form-card">
+        <div class="form-header">
+          <h2>So… how'd it go?</h2>
+          <p>Don't sugarcoat it. Honest feedback is how we actually get better at this.</p>
+        </div>
+        <div class="fb-intro">
+          <h3>The debrief 🍜</h3>
+          <p>this stays between us. your feedback goes directly to us — nobody else.</p>
+        </div>
+        <div class="field-row">
+          <div class="field-group"><label>Your Name <span class="req">*</span></label><input type="text" id="fb-name" placeholder="Your name"></div>
+          <div class="field-group"><label>Your Email <span class="req">*</span></label><input type="email" id="fb-email" placeholder="Links to your profile"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-group"><label>Who did you go on a date with? <span class="req">*</span></label><input type="text" id="fb-datename" placeholder="Their first name"></div>
+          <div class="field-group"><label>Date of the date</label><input type="text" id="fb-datedate" placeholder="e.g. March 8, 2025"></div>
+        </div>
+        <div class="divider">Overall Vibe</div>
+        <div class="field-group">
+          <label>How did you feel after the date?</label>
+          <div class="stars" id="st-overall">
+            <span class="star" onclick="setStar('st-overall',1)" data-v="1">★</span><span class="star" onclick="setStar('st-overall',2)" data-v="2">★</span>
+            <span class="star" onclick="setStar('st-overall',3)" data-v="3">★</span><span class="star" onclick="setStar('st-overall',4)" data-v="4">★</span>
+            <span class="star" onclick="setStar('st-overall',5)" data-v="5">★</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Would you want to see them again?</label>
+          <div class="tags" id="t-again">
+            <div class="tag" onclick="tog(this)">Yes, definitely!</div>
+            <div class="tag" onclick="tog(this)">Maybe — need more time</div>
+            <div class="tag" onclick="tog(this)">Friends maybe</div>
+            <div class="tag" onclick="tog(this)">No, not the right fit</div>
+          </div>
+        </div>
+        <div class="divider">The Details</div>
+        <div class="field-group">
+          <label>What worked well?</label>
+          <textarea id="fb-good" placeholder="What actually worked? Conversation? Energy? Chemistry? Be specific." maxlength="400" oninput="cnt(this,'fg-c',400)"></textarea>
+          <div class="char-count"><span id="fg-c">0</span>/400</div>
+        </div>
+        <div class="field-group">
+          <label>What felt off or didn't click?</label>
+          <textarea id="fb-bad" placeholder="Don't hold back. This is exactly the information we need." maxlength="400" oninput="cnt(this,'fb-c',400)"></textarea>
+          <div class="char-count"><span id="fb-c">0</span>/400</div>
+        </div>
+        <div class="field-group">
+          <label>Rate the match quality</label>
+          <div class="stars" id="st-match">
+            <span class="star" onclick="setStar('st-match',1)" data-v="1">★</span><span class="star" onclick="setStar('st-match',2)" data-v="2">★</span>
+            <span class="star" onclick="setStar('st-match',3)" data-v="3">★</span><span class="star" onclick="setStar('st-match',4)" data-v="4">★</span>
+            <span class="star" onclick="setStar('st-match',5)" data-v="5">★</span>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:4px;">How well did we understand what you're looking for?</p>
+        </div>
+        <div class="field-group">
+          <label>Anything else?</label>
+          <textarea id="fb-other" placeholder="Details that might help us refine future matches for you…" maxlength="500" oninput="cnt(this,'fo-c',500)"></textarea>
+          <div class="char-count"><span id="fo-c">0</span>/500</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:36px;">
+          <div class="submit-status" id="fb-st"><div class="spinner"></div><span id="fb-st-txt">Submitting…</span></div>
+          <button class="btn-submit" id="fb-btn" onclick="submitFeedback()">Submit Feedback</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="fb-success" class="success-state" style="display:none;">
+    <div class="success-inner">
+      <span class="s-bowl">💌</span>
+      <h2>Got it. Thank you.</h2>
+      <p>Noted, logged, and genuinely appreciated. We'll use this to do better.</p>
+      <button class="btn-primary" onclick="resetPage('home')">Back to home</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// ══════════════════════════════════
+// CONFIG
+// ══════════════════════════════════
+const CFG = 'ys_cfg';
+const getCfg = () => { try { return JSON.parse(localStorage.getItem(CFG)) || {}; } catch { return {}; } };
+
+function saveConfig() {
+  const c = {
+    atToken: document.getElementById('cfg-at-token').value.trim(),
+    atBase:  document.getElementById('cfg-at-base').value.trim(),
+    atApps:  document.getElementById('cfg-at-apps').value.trim() || 'Applications',
+    atFb:    document.getElementById('cfg-at-fb').value.trim() || 'Date Feedback',
+    ejsSvc:  document.getElementById('cfg-ejs-svc').value.trim(),
+    ejsTpl:  document.getElementById('cfg-ejs-tpl').value.trim(),
+    ejsKey:  document.getElementById('cfg-ejs-key').value.trim(),
+    calUrl:  document.getElementById('cfg-cal').value.trim(),
+  };
+  localStorage.setItem(CFG, JSON.stringify(c));
+  updateBanner(c);
+  if (c.calUrl) { document.getElementById('s-cal-link').href = c.calUrl; document.getElementById('s-cal-cta').style.display='block'; }
+  closeConfig();
+}
+
+function updateBanner(c) {
+  const b = document.getElementById('config-banner');
+  if (c.atToken && c.atBase) {
+    b.style.background = 'var(--olive)';
+    b.innerHTML = '<strong>✓ Integrations connected</strong> — submissions will go to Airtable. <button class="cfg-btn" style="background:rgba(255,255,255,0.22);" onclick="openConfig()">Edit</button>';
+  } else {
+    b.style.background = 'var(--charcoal)';
+    b.innerHTML = '<strong>⚙ Setup required:</strong> Connect Airtable & email to activate submissions. <button class="cfg-btn" onclick="openConfig()">Configure Integrations</button>';
+  }
+}
+
+function openConfig() {
+  const c = getCfg();
+  document.getElementById('cfg-at-token').value = c.atToken || '';
+  document.getElementById('cfg-at-base').value  = c.atBase  || '';
+  document.getElementById('cfg-at-apps').value  = c.atApps  || 'Applications';
+  document.getElementById('cfg-at-fb').value    = c.atFb    || 'Date Feedback';
+  document.getElementById('cfg-ejs-svc').value  = c.ejsSvc  || '';
+  document.getElementById('cfg-ejs-tpl').value  = c.ejsTpl  || '';
+  document.getElementById('cfg-ejs-key').value  = c.ejsKey  || '';
+  document.getElementById('cfg-cal').value      = c.calUrl  || '';
+  document.getElementById('configModal').classList.add('open');
+}
+function closeConfig() { document.getElementById('configModal').classList.remove('open'); }
+document.getElementById('configModal').addEventListener('click', e => { if (e.target === document.getElementById('configModal')) closeConfig(); });
+
+// ══════════════════════════════════
+// PAGE ROUTING
+// ══════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', ['home','apply','feedback'][i]===id));
+  window.scrollTo(0,0);
+  if (id==='apply') initSteps();
+}
+function goHome() { showPage('home'); }
+function resetPage(id) {
+  document.getElementById('apply-wrapper').style.display='';
+  document.getElementById('apply-success').style.display='none';
+  document.getElementById('fb-wrapper').style.display='';
+  document.getElementById('fb-success').style.display='none';
+  showPage(id);
+}
+
+// ══════════════════════════════════
+// SUBMISSION TYPE
+// ══════════════════════════════════
+let subType = null;
+let awarenessVal = null;
+
+function selectType(t) {
+  subType = t;
+  document.getElementById('card-self').classList.toggle('selected', t==='self');
+  document.getElementById('card-friend').classList.toggle('selected', t==='friend');
+  const ab = document.getElementById('awareBox');
+  const fn = document.getElementById('friendNote');
+  const btn = document.getElementById('btn-s1-next');
+
+  if (t==='friend') {
+    ab.classList.add('show');
+    fn.classList.remove('show');
+    awarenessVal = null;
+    document.getElementById('aw-knows').classList.remove('selected');
+    document.getElementById('aw-surprise').classList.remove('selected');
+    btn.disabled = true;
+  } else {
+    ab.classList.remove('show');
+    fn.classList.remove('show');
+    awarenessVal = null;
+    btn.disabled = false;
+    setLabelsForSelf();
+  }
+}
+
+function selectAwareness(v) {
+  awarenessVal = v;
+  document.getElementById('aw-knows').classList.toggle('selected', v==='knows');
+  document.getElementById('aw-surprise').classList.toggle('selected', v==='surprise');
+  const fn = document.getElementById('friendNote');
+  fn.classList.add('show');
+  if (v==='knows') {
+    fn.style.cssText='display:block;background:#F0FAF0;border:1px solid #7CB97C;color:#2A5A2A;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:13px;line-height:1.5;';
+    fn.textContent='✓ Love that energy. We\'ll reach out to them and get the process started.';
+  } else {
+    fn.style.cssText='display:block;background:#FFFBF0;border:1px solid #F0A500;color:#6B4E00;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:13px;line-height:1.5;';
+    fn.textContent='🤫 We love a good intervention. We\'ll reach out warmly — and we will never, ever reveal who nominated them.';
+  }
+  document.getElementById('btn-s1-next').disabled = false;
+  setLabelsForFriend();
+}
+
+function setLabelsForSelf() {
+  document.getElementById('nom-section').classList.remove('show');
+  document.getElementById('ctx-pill').classList.remove('show');
+  document.getElementById('basics-label').textContent = 'The Basics';
+  document.getElementById('occupation').placeholder = 'What do you do?';
+  document.getElementById('email').placeholder = 'you@email.com';
+}
+
+function setLabelsForFriend() {
+  document.getElementById('nom-section').classList.add('show');
+  document.getElementById('ctx-pill').classList.add('show');
+  document.getElementById('ctx-text').textContent = awarenessVal==='surprise' ? '🤫 Surprise nomination' : '💌 Friend nomination (they know)';
+  document.getElementById('basics-label').textContent = 'About Your Friend';
+  document.getElementById('occupation').placeholder = 'What do they do?';
+  document.getElementById('email').placeholder = 'their@email.com';
+}
+
+// ══════════════════════════════════
+// STEPS
+// ══════════════════════════════════
+let curStep = 1;
+const STEPS = 5;
+const stepMeta = [
+  ['Who are we working with?','Are you here for yourself, or saving a friend from themselves?'],
+  ['The basics','Let\'s get the boring stuff out of the way.'],
+  ['Show your face','Add some photos. Yes, multiple. Yes, it matters.'],
+  ['Who you actually are','The real stuff. Don\'t be boring about it.'],
+  ['Almost done — make it count','These last details are how we find your person.'],
+];
+
+function initSteps() {
+  curStep = 1;
+  subType = null; awarenessVal = null;
+  document.querySelectorAll('.form-step').forEach((s,i) => s.classList.toggle('active', i===0));
+  document.getElementById('card-self').classList.remove('selected');
+  document.getElementById('card-friend').classList.remove('selected');
+  document.getElementById('awareBox').classList.remove('show');
+  document.getElementById('friendNote').classList.remove('show');
+  document.getElementById('btn-s1-next').disabled = true;
+  renderDots(); updateHeader();
+}
+
+function renderDots() {
+  const c = document.getElementById('progress-dots');
+  c.innerHTML='';
+  for(let i=1;i<=STEPS;i++){
+    const d=document.createElement('div');
+    d.className='progress-seg'+(i<curStep?' done':i===curStep?' active':'');
+    c.appendChild(d);
+  }
+}
+
+function updateHeader() {
+  document.getElementById('step-num').textContent = curStep;
+  document.getElementById('step-title').textContent = stepMeta[curStep-1][0];
+  document.getElementById('step-desc').textContent = stepMeta[curStep-1][1];
+}
+
+function nextStep(n) {
+  document.getElementById('step-'+curStep).classList.remove('active');
+  curStep = n;
+  document.getElementById('step-'+curStep).classList.add('active');
+  renderDots(); updateHeader();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══════════════════════════════════
+// PHOTOS
+// ══════════════════════════════════
+const photos = [];
+function addPhotos(e) {
+  Array.from(e.target.files).forEach(f => {
+    if(!f.type.startsWith('image/')) return;
+    const r=new FileReader();
+    r.onload=ev=>{photos.push({name:f.name,url:ev.target.result});renderPhotos();};
+    r.readAsDataURL(f);
+  });
+}
+function renderPhotos() {
+  const g=document.getElementById('photoGrid');g.innerHTML='';
+  photos.forEach((p,i)=>{const d=document.createElement('div');d.className='photo-thumb';d.innerHTML=`<img src="${p.url}" alt="photo"><button class="rm" onclick="rmPhoto(${i})">✕</button>`;g.appendChild(d);});
+}
+function rmPhoto(i){photos.splice(i,1);renderPhotos();}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/')).forEach(f=>{const r=new FileReader();r.onload=ev=>{photos.push({name:f.name,url:ev.target.result});renderPhotos();};r.readAsDataURL(f);});});
+
+// ══════════════════════════════════
+// HELPERS
+// ══════════════════════════════════
+function tog(el){el.classList.toggle('on');}
+function cnt(el,id,max){document.getElementById(id).textContent=el.value.length;}
+const starVals={};
+function setStar(grp,v){starVals[grp]=v;document.querySelectorAll('#'+grp+' .star').forEach(s=>s.classList.toggle('on',parseInt(s.dataset.v)<=v));}
+function getTags(id){return Array.from(document.querySelectorAll('#'+id+' .tag.on')).map(t=>t.textContent).join(', ');}
+function gv(id){const e=document.getElementById(id);return e?e.value:'';}
+
+// ══════════════════════════════════
+// AIRTABLE
+// ══════════════════════════════════
+async function toAirtable(table, fields) {
+  const c=getCfg();
+  if(!c.atToken||!c.atBase) return {skipped:true};
+  const res=await fetch(`https://api.airtable.com/v0/${c.atBase}/${encodeURIComponent(table)}`,{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+c.atToken,'Content-Type':'application/json'},
+    body:JSON.stringify({fields}),
+  });
+  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Airtable error');}
+  return res.json();
+}
+
+// ══════════════════════════════════
+// EMAIL
+// ══════════════════════════════════
+async function sendEmail(toEmail, toName, isFriend) {
+  const c=getCfg();
+  if(!c.ejsSvc||!c.ejsTpl||!c.ejsKey) return {skipped:true};
+  emailjs.init(c.ejsKey);
+  return emailjs.send(c.ejsSvc, c.ejsTpl, {
+    to_email: toEmail, to_name: toName,
+    is_friend: isFriend?'true':'false',
+    calendly_url: c.calUrl||'',
+  });
+}
+
+// ══════════════════════════════════
+// SUBMIT APPLICATION
+// ══════════════════════════════════
+async function submitApp() {
+  const btn=document.getElementById('app-btn');
+  const stEl=document.getElementById('app-st');
+  const stTxt=document.getElementById('app-st-txt');
+  btn.disabled=true; stEl.classList.add('show'); stTxt.textContent='Saving to Airtable…'; stTxt.className='';
+
+  const c=getCfg();
+  const isFriend = subType==='friend';
+  const fields={
+    'First Name':gv('firstName'), 'Last Name':gv('lastName'),
+    'Age': gv('age')?parseInt(gv('age')):null, 'Gender':gv('gender'),
+    'Email':gv('email'), 'Phone':gv('phone'), 'Location':gv('location'), 'Occupation':gv('occupation'),
+    'Instagram':gv('instagram'), 'LinkedIn':gv('linkedin'), 'Bio':gv('bio'),
+    'Looking For':getTags('t-looking'), 'Vibes':getTags('t-vibe'),
+    'Green Flags':gv('greenFlag'), 'Dealbreakers':gv('dealbreaker'),
+    'Kids':gv('kids'),
+    'Religion':gv('religion'),
+    'Partner Religion Preference':gv('religion-pref'),
+    'Extra Notes':gv('extras'), 'Referral':gv('referral'),
+    'Submission Type': isFriend?(awarenessVal==='surprise'?'Friend Nomination (Surprise)':'Friend Nomination (Aware)'):'Self',
+    'Friend Aware': isFriend?(awarenessVal==='knows'?'Yes':'No — surprise'):'N/A',
+    'Photos Count': photos.length,
+    'Submitted At': new Date().toISOString(),
+  };
+  if(isFriend){
+    fields['Nominator Name']=gv('nom-name');
+    fields['Nominator Email']=gv('nom-email');
+    fields['Nominator Relation']=gv('nom-rel');
+    fields['Nominator Notes']=gv('nom-why');
+  }
+
+  try {
+    const r=await toAirtable(c.atApps||'Applications', fields);
+    if(!r.skipped){ stTxt.textContent='✓ Saved!'; stTxt.className='ok'; }
+
+    // email
+    try {
+      const emailTo = isFriend ? gv('nom-email') : gv('email');
+      const emailName = isFriend ? gv('nom-name') : gv('firstName');
+      await sendEmail(emailTo, emailName, isFriend);
+    } catch(e){/* email optional */}
+
+    setTimeout(()=>{
+      document.getElementById('apply-wrapper').style.display='none';
+      document.getElementById('apply-success').style.display='flex';
+      document.getElementById('s-msg').textContent = isFriend
+        ? `We've got the nomination for ${gv('firstName')}. We'll review it and be in touch within 2–3 days.`
+        : `We've got your application. Give us 2–3 days — we actually read these.`;
+      if(c.calUrl){document.getElementById('s-cal-cta').style.display='block';document.getElementById('s-cal-link').href=c.calUrl;document.getElementById('s-cal-txt').textContent='Use the button below to pick a time that works for you';}
+      window.scrollTo(0,0);
+    }, 700);
+  } catch(err){
+    stTxt.textContent='Error: '+err.message; stTxt.className='err'; btn.disabled=false;
+  }
+}
+
+// ══════════════════════════════════
+// SUBMIT FEEDBACK
+// ══════════════════════════════════
+async function submitFeedback() {
+  const btn=document.getElementById('fb-btn');
+  const stEl=document.getElementById('fb-st');
+  const stTxt=document.getElementById('fb-st-txt');
+  btn.disabled=true; stEl.classList.add('show'); stTxt.textContent='Saving…'; stTxt.className='';
+
+  const c=getCfg();
+  const fields={
+    'Your Name':gv('fb-name'), 'Your Email':gv('fb-email'),
+    'Date Name':gv('fb-datename'), 'Date Date':gv('fb-datedate'),
+    'Overall Rating': starVals['st-overall']||0,
+    'Match Quality Rating': starVals['st-match']||0,
+    'See Again': getTags('t-again'),
+    'What Worked':gv('fb-good'), 'What Didn\'t Click':gv('fb-bad'),
+    'Other Notes':gv('fb-other'),
+    'Submitted At': new Date().toISOString(),
+  };
+
+  try {
+    const r=await toAirtable(c.atFb||'Date Feedback', fields);
+    if(!r.skipped){ stTxt.textContent='✓ Saved!'; stTxt.className='ok'; }
+    setTimeout(()=>{
+      document.getElementById('fb-wrapper').style.display='none';
+      document.getElementById('fb-success').style.display='flex';
+      window.scrollTo(0,0);
+    }, 500);
+  } catch(err){
+    stTxt.textContent='Error: '+err.message; stTxt.className='err'; btn.disabled=false;
+  }
+}
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+(function(){
+  initSteps();
+  const c=getCfg();
+  if(c.atToken&&c.atBase) updateBanner(c);
+  if(c.calUrl){ document.getElementById('s-cal-link').href=c.calUrl; document.getElementById('s-cal-cta').style.display='block'; }
+})();
+</script>
+</body>
+</html>
